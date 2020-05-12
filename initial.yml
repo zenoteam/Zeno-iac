@@ -1,0 +1,16 @@
+- hosts: all
+  become: yes
+  tasks:
+    - name: create the 'zeno' user
+      user: name=zeno append=yes state=present createhome=yes shell=/bin/bash
+
+    - name: allow 'zeno' to have passwordless sudo
+      lineinfile:
+        dest: /etc/sudoers
+        line: 'zeno ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
+
+    - name: set up authorized keys for the zeno user
+      authorized_key: user=zeno key="{{item}}"
+      with_file:
+        - ~/.ssh/id_rsa.pub
